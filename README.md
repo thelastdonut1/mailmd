@@ -23,13 +23,25 @@ uv tool install .
 In new Outlook: right-click the newest message in the thread, then **Save as > Save as EML**.
 
 ```
-mailmd convert "RE_ Project kickoff.eml"            # writes "RE_ Project kickoff.md" next to the .eml
-mailmd convert thread.eml -o notes/correspondence   # or into another folder
-mailmd convert *.eml                                # several files, each converted on its own
+mailmd convert ~/Downloads/RE_x.eml                                     # creates ./2026-11-16_x/
+mailmd convert ~/Downloads/RE_x.eml -o notes/correspondence             # create it somewhere else
+mailmd convert ~/Downloads/RE_x.eml --name acme-quote               # pick the folder name yourself
+mailmd convert ~/Downloads/*.eml                                        # several files, one folder each
 ```
 
-Output is Markdown with YAML front matter (subject, participants, first and last send time, attachment paths),
-followed by one section per message.
+Each conversion creates one folder, in the current directory unless `-o` says otherwise:
+
+```
+2026-11-16_project-kickoff/
+├── 2026-11-16_project-kickoff.md   Markdown with YAML front matter, one section per message
+├── attachments/                    real attachments (not inline logos), only when there are any
+└── source.eml                      a copy of the original export
+```
+
+- The folder is named `YYYY-MM-DD_subject-slug`, dated by the newest message. `--name` replaces the whole name.
+- `source.eml` is the record the Markdown is derived from. Running `mailmd convert` on it again with `--force`
+  rebuilds the folder in place. `--no-source` leaves it out.
+- An existing folder is never overwritten unless you pass `--force`.
 
 Known gaps and planned behavior are tracked in the GitHub issues.
 
