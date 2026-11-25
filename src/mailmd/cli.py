@@ -6,8 +6,7 @@ from typing import Annotated
 
 import typer
 
-from mailmd.convert import OutputExistsError, default_folder_name
-from mailmd.convert import convert as convert_file
+from mailmd.convert import OutputExistsError, PathTooLongError, plan, write
 from mailmd.naming import is_valid_folder_name
 
 app = typer.Typer(help="Convert exported Outlook email threads (.eml) into clean Markdown.", no_args_is_help=True)
@@ -51,15 +50,13 @@ def convert(
         if path.suffix.lower() != ".eml":
             typer.echo(f"Skipping {path.name}: only .eml files are supported", err=True)
             continue
-        folder = name or default_folder_name(path)
-        if folder.lower() in written:
-            # Two inputs from the same day with the same subject; never let the second replace the first.
-            typer.echo(f"Skipping {path.name}: {folder} was already written in this run", err=True)
-            failed = True
-            continue
         try:
-            result = convert_file(path, parent, name=name, include_source=not no_source, force=force)
-        except OutputExistsError as error:
+            planned = plan(path, parent, name=name, include_source=not no_source)
+            if planned.folder.name.lower() in written:
+                # Two inputs from the same day with the same subject; never let the second replace the first.
+                raise OutputExistsError(f"{planned.folder.name} was already written in this run")
+            result = write(planned, force=force)
+        except (OutputExistsError, PathTooLongError) as error:
             typer.echo(f"Skipping {path.name}: {error}", err=True)
             failed = True
             continue

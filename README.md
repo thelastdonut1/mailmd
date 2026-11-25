@@ -38,7 +38,11 @@ Each conversion creates one folder, in the current directory unless `-o` says ot
 └── source.eml                      a copy of the original export
 ```
 
-- The folder is named `YYYY-MM-DD_subject-slug`, dated by the newest message. `--name` replaces the whole name.
+- The folder is named `YYYY-MM-DD_subject-slug`, dated by the newest message. The slug drops `Re:`/`Fw:` prefixes
+  and bracketed labels (`[EXTERNAL]`, `【ご案内】`, `(rev 2)`), and is at most 40 characters. `--name` replaces the
+  whole name.
+- No path mailmd writes is longer than 250 characters (Windows tools fail past 260). In a deep folder, a generated
+  name is shortened to fit; a `--name` that doesn't fit is an error.
 - `source.eml` is the record the Markdown is derived from. Running `mailmd convert` on it again with `--force`
   rebuilds the folder in place. `--no-source` leaves it out.
 - An existing folder is never overwritten unless you pass `--force`.

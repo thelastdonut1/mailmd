@@ -7,7 +7,7 @@ import pytest
 from typer.testing import CliRunner
 
 from mailmd.cli import app
-from mailmd.convert import OutputExistsError, convert
+from mailmd.convert import MAX_PATH_CHARS, OutputExistsError, PathTooLongError, convert, plan
 
 FIXTURE = Path(__file__).parent / "fixtures" / "outlook_reply.eml"
 # The fixture's Date header is 2026-11-25 14:08:16 UTC; folder dates use the machine's local time zone.
@@ -101,3 +101,40 @@ def test_cli_never_lets_a_later_input_replace_an_earlier_one_in_the_same_run(tmp
     result = run(str(FIXTURE), str(copy), "--out", str(tmp_path / "out"), "--force")
     assert result.exit_code == 1
     assert "already written in this run" in result.output
+
+
+def _parent_of_length(base: Path, length: int) -> Path:
+    """A (not yet created) folder under `base` whose absolute path is exactly `length` characters."""
+    prefix = len(str(base.absolute())) + 1
+    return base / ("p" * (length - prefix))
+
+
+def test_generated_name_shrinks_until_the_longest_path_fits(tmp_path):
+    # Promise: when the parent folder is deep, a generated folder name is shortened so that no written path
+    # exceeds MAX_PATH_CHARS, and it keeps its date prefix.
+    source = tmp_path / "long.eml"
+    long_subject = b"Subject: RE: Quarterly planning discussion for the regional engineering teams"
+    source.write_bytes(FIXTURE.read_bytes().replace(b"Subject: RE: Project kickoff", long_subject, 1))
+    roomy = plan(source, tmp_path)
+    # Deep enough that the roomy name's Markdown path (parent + 2 x folder + separators + ".md") overflows by 10
+    parent = _parent_of_length(tmp_path, MAX_PATH_CHARS - (2 * len(roomy.folder.name) + 5) + 10)
+    deep = plan(source, parent)
+    with pytest.raises(PathTooLongError):  # the unshortened name really wouldn't fit here
+        plan(source, parent, name=roomy.folder.name)
+    assert deep.longest_path() <= MAX_PATH_CHARS
+    assert len(deep.folder.name) < len(roomy.folder.name)
+    assert deep.folder.name.startswith(f"{LOCAL_DATE}_")
+
+
+def test_path_that_cannot_fit_is_an_error_before_anything_is_written(tmp_path):
+    # Promise: if even the shortest generated name is too long, conversion fails without creating anything.
+    parent = _parent_of_length(tmp_path, MAX_PATH_CHARS - 10)
+    with pytest.raises(PathTooLongError):
+        convert(FIXTURE, parent)
+    assert not parent.exists()
+
+
+def test_user_supplied_name_is_never_shortened(tmp_path):
+    # Promise: a --name that would make a path too long is an error, not silently truncated.
+    with pytest.raises(PathTooLongError):
+        plan(FIXTURE, tmp_path, name="n" * MAX_PATH_CHARS)
