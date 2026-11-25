@@ -57,4 +57,20 @@ uv run pytest
 uv run ruff check . && uv run ruff format --check . && uv run ty check src
 ```
 
-Tests use the synthetic export in `tests/fixtures/`. Real email exports are git-ignored and must never be committed.
+Tests use synthetic exports in `tests/fixtures/`. Real email exports are git-ignored and must never be committed.
+
+### Keeping real email details out of this repo
+
+This repository is public, and examples for an email tool are easily modeled on real messages. A guard runs on every
+commit:
+
+```
+uvx prek install                                # once per clone: installs the pre-commit and commit-msg hooks
+cp .leakcheck.local.example .leakcheck.local    # then list your real domains, names and companies in it
+```
+
+- **Every staged file and the commit message** are checked against `.leakcheck.local`, a git-ignored list of real
+  terms matched case-insensitively. The list is never committed, since a list of real names would itself be a leak.
+- **Fixtures** in `tests/fixtures/` must use reserved example domains (`example.com`, `*.example`, `*.test`, ...) and
+  may not contain Exchange transport headers, whether or not a deny-list exists.
+- Nothing local checks GitHub issues, PR descriptions or comments: use made-up examples there too.

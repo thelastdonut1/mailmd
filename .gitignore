@@ -12,11 +12,14 @@ wheels/
 # Real email exports never belong in this repo; only synthetic fixtures do
 *.eml
 *.msg
-!tests/fixtures/*.eml
+!tests/fixtures/**/*.eml
 
 # Local scratch folders for real exports and their converted output
 input/
 samples/
+
+# Local deny-list for tools/leakcheck.py: it lists real names, so it must never be committed
+.leakcheck.local
 
 # Tool caches
 .pytest_cache/

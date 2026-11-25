@@ -1,0 +1,16 @@
+# Run with prek (https://github.com/j178/prek): `prek install` installs both hook types below.
+default_install_hook_types: [pre-commit, commit-msg]
+
+repos:
+  - repo: local
+    hooks:
+      - id: leakcheck
+        name: leakcheck (real email details in staged files)
+        entry: uv run python tools/leakcheck.py
+        language: system
+        stages: [pre-commit]
+      - id: leakcheck-commit-msg
+        name: leakcheck (real email details in the commit message)
+        entry: uv run python tools/leakcheck.py --commit-msg
+        language: system
+        stages: [commit-msg]
