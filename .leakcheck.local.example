@@ -1,0 +1,11 @@
+# Copy to .leakcheck.local (git-ignored) and list real details that must never be committed, one per line.
+# Matching is case-insensitive and by substring, so "acme" also catches "acmecorp.com" and "Acme Ltd".
+# Prefer false alarms over misses: a blocked commit just needs its example replaced with a made-up one.
+
+# Work and customer email domains
+acmecorp.com
+globex.co.jp
+
+# People and companies that appear in real threads
+Jane Doe
+Initech
