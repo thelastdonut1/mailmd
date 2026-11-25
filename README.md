@@ -15,7 +15,7 @@ link-scanner URLs and image placeholders. `mailmd` turns one exported message in
 ## Install
 
 ```
-uv tool install .
+uv tool install .      # or: just install
 ```
 
 ## Use
@@ -51,11 +51,18 @@ Known gaps and planned behavior are tracked in the GitHub issues.
 
 ## Develop
 
+Routine commands are recipes in the `justfile` ([just](https://github.com/casey/just)); run `just` to list them.
+
 ```
-uv sync
-uv run pytest
-uv run ruff check . && uv run ruff format --check . && uv run ty check src
+just sync              # install dependencies
+just check             # everything that must pass before pushing: lint, types, tests, leakcheck
+just test -k naming    # tests, with extra arguments passed to pytest
+just fmt               # fix what ruff can fix, then format
+just convert samples/case/thread.eml -o out
 ```
+
+On Windows the recipes run in Git Bash; the `windows-shell` setting at the top of the `justfile` points to it.
+Without `just` installed, `uvx --from rust-just just <recipe>` runs it, or see the commands inside each recipe.
 
 Tests use synthetic exports in `tests/fixtures/`. Real email exports are git-ignored and must never be committed.
 
@@ -65,7 +72,7 @@ This repository is public, and examples for an email tool are easily modeled on 
 commit:
 
 ```
-uvx prek install                                # once per clone: installs the pre-commit and commit-msg hooks
+just hooks                                      # once per clone: installs the pre-commit and commit-msg hooks
 cp .leakcheck.local.example .leakcheck.local    # then list your real domains, names and companies in it
 ```
 
