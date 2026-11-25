@@ -1,6 +1,7 @@
 """Plain data types shared across the pipeline."""
 
 from dataclasses import dataclass, field
+from datetime import datetime
 
 
 @dataclass
@@ -28,3 +29,4 @@ class Thread:
     messages: list[Message]  # oldest first
     attachments: list[Attachment] = field(default_factory=list)
     boilerplate_removed: int = 0
+    sent_at: datetime | None = None  # when the newest (exported) message was sent, in local time

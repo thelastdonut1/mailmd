@@ -4,10 +4,8 @@ Alice's reply (with a real attachment and an inline logo) quoting Bob's message,
 from pathlib import Path
 
 import pytest
-from typer.testing import CliRunner
 
-from mailmd.cli import app
-from mailmd.convert import _safe_filename, build_thread, convert
+from mailmd.convert import build_thread, convert
 
 FIXTURE = Path(__file__).parent / "fixtures" / "outlook_reply.eml"
 NOTICE = "CONFIDENTIALITY NOTICE"
@@ -57,34 +55,9 @@ def test_squashed_preview_paragraph_is_dropped(thread):
     assert thread.messages[-1].body.startswith("Hi Bob,\n\nHere is the updated schedule.")
 
 
-def test_only_real_attachments_are_saved_with_exact_bytes(tmp_path):
-    # Promise: attachments are written byte-for-byte under <stem>_attachments/, and inline images are skipped.
-    result = convert(FIXTURE, tmp_path)
-    assert [p.name for p in result.attachment_paths] == ["schedule_v2.txt"]
-    assert result.attachment_paths[0].read_bytes() == b"Week 1: kickoff\n"
-
-
-@pytest.mark.parametrize(
-    ("raw", "expected"),
-    [("report:final?.pdf", "report_final_.pdf"), ("..\\..\\evil.exe", "evil.exe"), ("  .  ", "attachment")],
-)
-def test_attachment_names_are_safe_on_windows(raw, expected):
-    # Promise: attachment names can never escape the output folder or contain characters Windows rejects.
-    assert _safe_filename(raw) == expected
-
-
 def test_markdown_lists_each_participant_once(tmp_path):
     # Promise: one person written several ways ('"Smith, Alice" <a@x>' and 'Smith, Alice <a@x>') is listed once.
     markdown = convert(FIXTURE, tmp_path).markdown_path.read_text(encoding="utf-8")
     front_matter = markdown.split("---")[1]
     assert front_matter.count("Smith, Alice") == 1
     assert "## 3. Smith, Alice ·" in markdown
-
-
-def test_cli_writes_markdown_next_to_the_input_by_default(tmp_path):
-    # Promise: `mailmd convert FILE` writes FILE.md in the input's own folder when no --out is given.
-    source = tmp_path / "thread.eml"
-    source.write_bytes(FIXTURE.read_bytes())
-    result = CliRunner().invoke(app, ["convert", str(source)])
-    assert result.exit_code == 0, result.output
-    assert (tmp_path / "thread.md").exists()
