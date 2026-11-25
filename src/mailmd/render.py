@@ -4,15 +4,14 @@ import json
 import re
 
 from mailmd.model import Thread
+from mailmd.naming import base_subject
 
-# "Re:", "RE:", "Fw:", "FW:", "Fwd:" and the full-width colon variant used by Japanese clients
-# "Name <address>" as Outlook writes it in quoted headers. Names are not RFC-quoted ("Kato, Tatsuya <tk@x.com>"),
-# so email.utils.parseaddr misreads the comma as an address separator.
+# "Name <address>" as Outlook writes it in quoted headers. Names are not RFC-quoted
+# ("Smith, Alice <alice@example.com>"), so email.utils.parseaddr misreads the comma as an address separator.
 NAME_ADDRESS = re.compile(r"^\s*(?P<name>.*?)\s*<(?P<address>[^<>]+)>\s*$")
-REPLY_PREFIX = re.compile(r"^\s*((re|fw|fwd)\s*[:：]\s*)+", re.IGNORECASE)
 
 
-def render(thread: Thread, source: str, attachment_dir: str | None) -> str:
+def render(thread: Thread, source: str, attachment_paths: list[str]) -> str:
     participants = _participants([m.sender for m in thread.messages])
     front = {
         "subject": thread.subject,
@@ -21,7 +20,7 @@ def render(thread: Thread, source: str, attachment_dir: str | None) -> str:
         "first_sent": thread.messages[0].sent if thread.messages else "",
         "last_sent": thread.messages[-1].sent if thread.messages else "",
         "participants": participants,
-        "attachments": [f"{attachment_dir}/{a.filename}" for a in thread.attachments],
+        "attachments": attachment_paths,
         "boilerplate_paragraphs_removed": thread.boilerplate_removed,
     }
     lines = ["---"]
@@ -35,7 +34,7 @@ def render(thread: Thread, source: str, attachment_dir: str | None) -> str:
         lines.append(f"**To:** {message.to}  ")
         if message.cc:
             lines.append(f"**Cc:** {message.cc}  ")
-        if message.subject and _base_subject(message.subject) != _base_subject(thread.subject):
+        if message.subject and base_subject(message.subject).lower() != base_subject(thread.subject).lower():
             lines.append(f"**Subject:** {message.subject}  ")
         lines.append("")
         lines.append(message.body or "_(no text)_")
@@ -44,7 +43,7 @@ def render(thread: Thread, source: str, attachment_dir: str | None) -> str:
 
 
 def _name(sender: str) -> str:
-    """Display name only: '"Kato, Tatsuya" <tk@x.com>' and 'Kato, Tatsuya' both become 'Kato, Tatsuya'."""
+    """Display name only: '"Smith, Alice" <alice@example.com>' and 'Smith, Alice' both become 'Smith, Alice'."""
     name, address = _split_address(sender)
     return name or address
 
@@ -68,10 +67,6 @@ def _split_address(sender: str) -> tuple[str, str]:
     if match:
         return match.group("name").strip('" '), match.group("address").strip()
     return sender.strip('" '), ""
-
-
-def _base_subject(subject: str) -> str:
-    return REPLY_PREFIX.sub("", subject).strip().lower()
 
 
 def _yaml(value: object) -> str:
