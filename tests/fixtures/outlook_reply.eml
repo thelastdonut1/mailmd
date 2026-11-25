@@ -1,0 +1,91 @@
+From: "Smith, Alice" <alice@example.com>
+To: Bob Jones <bob@example.com>
+Cc: "Lee, Carol" <carol@example.com>
+Subject: RE: Project kickoff
+Date: Wed, 25 Nov 2026 14:08:16 +0000
+Message-ID: <msg3@example.com>
+In-Reply-To: <msg2@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="mixed"
+
+--mixed
+Content-Type: multipart/related; boundary="related"
+
+--related
+Content-Type: multipart/alternative; boundary="alt"
+
+--alt
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+Hi Bob, Here is the updated schedule. Thanks, Alice
+[https://image-processing-service.example.com/banner]<https://report.example.com/x>
+CGBANNERINDICATOR
+Hi Bob,
+
+Here is the updated schedule.
+
+Thanks,
+
+Alice Smith
+[cid:image001.png@01DD7CE4.98B63A90]<https://url.us.m.mimecastprotect.com/s/abc?domain=example.com/>
+
+CONFIDENTIALITY NOTICE : The information contained in this electronic mail transmission is intended only for the named recipient and may contain confidential information.
+
+________________________________
+From: Bob Jones <bob@example.com<mailto:bob@example.com>>
+Sent: Tuesday, November 24, 2026 3:15 PM
+To: Smith, Alice <alice@example.com<mailto:alice@example.com>>
+Cc: Lee, Carol <carol@example.com<mailto:carol@example.com>>
+Subject: RE: Project kickoff
+
+Alice,
+
+Can you send the updated schedule? Details are on https://intranet.example.com/plan<https://url.us.m.mimecastprotect.com/s/def?domain=intranet.example.com>
+
+Thanks,
+
+Bob
+
+CONFIDENTIALITY NOTICE : The information contained in this electronic mail transmission is intended only for the named recipient and may contain confidential information.
+
+________________________________
+From: Smith, Alice <alice@example.com<mailto:alice@example.com>>
+Sent: Monday, November 23, 2026 9:00 AM
+To: Bob Jones <bob@example.com<mailto:bob@example.com>>
+Subject: Project kickoff
+
+Bob,
+
+Kickoff is Thursday at 10.
+
+Thanks,
+
+Alice
+
+CONFIDENTIALITY NOTICE : The information contained in this electronic mail transmission is intended only for the named recipient and may contain confidential information.
+
+--alt
+Content-Type: text/html; charset="utf-8"
+
+<html><body><p>Hi Bob,</p><p>Here is the updated schedule.</p></body></html>
+--alt--
+
+--related
+Content-Type: image/png; name="image001.png"
+Content-Disposition: inline; filename="image001.png"
+Content-ID: <image001.png@01DD7CE4.98B63A90>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgo=
+
+--related--
+
+--mixed
+Content-Type: text/plain; name="schedule:v2.txt"
+Content-Disposition: attachment; filename="schedule:v2.txt"
+Content-Transfer-Encoding: base64
+
+V2VlayAxOiBraWNrb2ZmCg==
+
+--mixed--

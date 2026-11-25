@@ -1,0 +1,10 @@
+# Text files use LF everywhere, regardless of each machine's core.autocrlf setting
+* text=auto eol=lf
+
+# Email fixtures stay byte-for-byte as written (email uses CRLF on the wire)
+*.eml -text
+*.msg binary
+
+*.png binary
+*.jpg binary
+*.pdf binary

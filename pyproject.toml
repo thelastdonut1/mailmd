@@ -1,0 +1,34 @@
+[project]
+name = "mailmd"
+version = "0.1.0"
+description = "Convert exported Outlook email threads (.eml) into clean Markdown for AI chats and project files"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "typer>=0.29.2",
+]
+
+[project.scripts]
+mailmd = "mailmd.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.13,<0.14"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib"]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.6",
+    "ty>=0.0.110",
+]

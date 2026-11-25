@@ -1,0 +1,23 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Real email exports never belong in this repo; only synthetic fixtures do
+*.eml
+*.msg
+!tests/fixtures/*.eml
+
+# Local scratch folders for real exports and their converted output
+input/
+samples/
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
