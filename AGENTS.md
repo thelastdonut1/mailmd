@@ -27,16 +27,22 @@ build a synthetic reproduction instead. If that isn't possible, stop and ask.
 
 ## Commands
 
-```
-uv sync                                   # install dependencies
-uv run pytest                             # tests
-uv run ruff check . && uv run ruff format --check .
-uv run ty check src tools                 # type checks
-uvx prek install                          # once per clone: leakcheck hooks
-uv run mailmd convert PATH.eml -o OUTDIR  # try the CLI
-```
+Routine commands are recipes in the `justfile`. If `just` isn't installed in your environment, run it with
+`uvx --from rust-just just <recipe>`.
 
-All four checks (pytest, ruff check, ruff format, ty) must pass before pushing.
+| Recipe | Runs |
+|---|---|
+| `just sync` | `uv sync` |
+| `just check` | `lint`, `types`, `test` and `leakcheck` below. **Must pass before pushing.** |
+| `just test [ARGS]` | `uv run pytest ARGS` |
+| `just lint` | `uv run ruff check .` and `uv run ruff format --check .` |
+| `just fmt` | `uv run ruff check --fix .` and `uv run ruff format .` |
+| `just types` | `uv run ty check src tools` |
+| `just leakcheck` | `git ls-files -z \| xargs -0 uv run python tools/leakcheck.py` |
+| `just hooks` | `uvx prek install` (once per clone: leakcheck hooks) |
+| `just convert ARGS` | `uv run mailmd convert ARGS` |
+
+Recipes use bash syntax; on Windows the `justfile` runs them in Git Bash.
 
 ## Layout
 
@@ -50,6 +56,7 @@ src/mailmd/
   naming.py   folder/file naming rules, kept as named constants at the top of the file
   model.py    Message, Attachment, Thread
 tools/leakcheck.py   the commit guard
+justfile             routine commands (see Commands)
 tests/               pytest; tests/fixtures/ holds synthetic .eml files, optionally in per-case subfolders
 samples/             real exports, git-ignored, never committed or copied from
 ```
